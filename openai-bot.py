@@ -43,7 +43,7 @@ def get_api_reponse(prompt: str, verbose: bool = False) -> str | None:
 
     return text
 
-
+    
 if __name__ == "__main__":
     tweet = "I am a pirate."
     

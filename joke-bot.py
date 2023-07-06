@@ -6,8 +6,11 @@ from config import (
     API_SECRET_KEY,
     BEARER_TOKEN,
     ACCESS_TOKEN,
-    ACCESS_TOKEN_SECRET
+    ACCESS_TOKEN_SECRET,
+    OPENAI_API_KEY
 )
+
+from openai_bot import JokeBot
 
 BOT_SCREEN_NAME = "JokWhySoSerious"
 
@@ -29,7 +32,7 @@ def get_tweets(client: tweepy.Client, query: str):
     return tweets
 
 
-def main(client: tweepy.Client, bot_id: int):
+def main(client: tweepy.Client, bot_id: int, joke_bot: JokeBot):
 
     try:
         # Load the last id of the last mention that the bot replied to
@@ -55,8 +58,10 @@ def main(client: tweepy.Client, bot_id: int):
                     try:
                         # print(mention.text)
                         # print(f"Meniton ID: {mention.id}\n\n")
+                        prompt = f"Generate jokes based on tweets and keywords. Respond with a joke based on the words used in the following tweet: {mention.text}"
+                        joke = joke_bot.generate_answer(prompt)
                         client.create_tweet(
-                            text=f"This is a joke reply to your mention.", in_reply_to_tweet_id=mention.id)
+                            text=f"{joke}", in_reply_to_tweet_id=mention.id)
                     except Exception as e:
                         print(e)
 
@@ -81,41 +86,14 @@ if __name__ == "__main__":
     client = get_client()
     user = client.get_user(username=BOT_SCREEN_NAME)
     bot_id = user.data.id
+    joke_bot = JokeBot(OPENAI_API_KEY)
+    main(client, bot_id, joke_bot)
 
-    main(client, bot_id)
 
-
-# prompt = f"Generate jokes based on tweets and keywords. Respond with a joke based on the words used in the tweet: {}"
 # QUESTIONS:
-# NOTE: Should my bot reply to tweets or tweet and tag the person?
-# NOTE: Should I have a list or sht of the mentiones that I have answered to since the get_users_mentions() method returns the last 10 mentions by minimum up to 800 max???
 # NOTE: Should my bot reply to direct messages?
 # NOTE: How do I counter the open rate limit of 300 requests per 15 minutes and the charging???? Check out the correct numbers.
-# NOTE: How fast should the bot asnwer? What is the allowed limit?
-# NOTE: This is the output of running this code.
-"""
-Response(data=[<Tweet id=1676705115653173248 text='@JokWhySoSerious And another one.'>, <Tweet id=1676704553121505280 text='@JokWhySoSerious This is a test joke tweet.'>], includes={}, errors=[], meta={'result_count': 2, 'newest_id': '1676705115653173248', 'oldest_id': '1676704553121505280'})
-@JokWhySoSerious And another one.
-@JokWhySoSerious This is a test joke tweet.
-"""
 
-# NOTE: When I ran it again on accident and DID NOT change the code in any way:
-"""
-Response(data=[<Tweet id=1676705199405056001 text='@FButic This is a joke reply to your mention.\nYou tweeted:\n@JokWhySoSerious This is a test joke tweet.'>, <Tweet id=1676705198339682304 text='@FButic This is a joke reply to your mention.\nYou tweeted:\n@JokWhySoSerious And another one.'>, <Tweet id=1676705115653173248 text='@JokWhySoSerious And another one.'>, <Tweet id=1676704553121505280 text='@JokWhySoSerious This is a test joke tweet.'>], includes={}, errors=[], meta={'result_count': 4, 'newest_id': '1676705199405056001', 'oldest_id': '1676704553121505280'})
-@FButic This is a joke reply to your mention.
-You tweeted:
-@JokWhySoSerious This is a test joke tweet.
-@FButic This is a joke reply to your mention.
-You tweeted:
-@JokWhySoSerious And another one.
-@JokWhySoSerious And another one.
-403 Forbidden
-You are not allowed to create a Tweet with duplicate content.
-@JokWhySoSerious This is a test joke tweet.
-403 Forbidden
-You are not allowed to create a Tweet with duplicate content.
-"""
-# NOTE: Use this if you can! Or just ask someone....
 # NOTE: With Basic you get 15 requests per 15 minutes
 
 # NOTE:
