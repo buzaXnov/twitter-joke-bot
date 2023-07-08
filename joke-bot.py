@@ -7,7 +7,7 @@ from config import (
     BEARER_TOKEN,
     ACCESS_TOKEN,
     ACCESS_TOKEN_SECRET,
-    OPENAI_API_KEY
+    BEN_OPENAI_API_KEY
 )
 
 from openai_bot import JokeBot
@@ -86,7 +86,7 @@ if __name__ == "__main__":
     client = get_client()
     user = client.get_user(username=BOT_SCREEN_NAME)
     bot_id = user.data.id
-    joke_bot = JokeBot(OPENAI_API_KEY)
+    joke_bot = JokeBot(BEN_OPENAI_API_KEY)
     main(client, bot_id, joke_bot)
 
 
